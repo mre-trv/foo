@@ -17,6 +17,22 @@ jobs:
   Create-Kafka-Topic:
     runs-on: ubuntu-latest
     steps:
+      - name: Send progress
+        env:
+          WEBHOOK_URL: https://better-snails-retire.loca.lt/
+          TOKEN: 1234
+        run: |
+          echo "Sending payload"
+          curl -X PATCH \
+            -H "X-Token: $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "status": "IN_PROGRESS",
+              "message": "The workflow is now in progress",
+              "external_run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }' \
+            $WEBHOOK_URL
+
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -37,6 +53,3 @@ jobs:
         run: |
           echo "Received client payload:"
           echo "$EVENT"
-
-      - name: End workflow
-        run: echo "Workflow completed"
