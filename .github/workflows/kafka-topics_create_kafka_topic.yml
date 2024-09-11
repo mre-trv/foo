@@ -17,12 +17,24 @@ jobs:
   Create-Kafka-Topic:
     runs-on: ubuntu-latest
     steps:
-      - name: Send progress
+      - name: Parse payload and send progress
         env:
-          WEBHOOK_URL: https://better-snails-retire.loca.lt/
           TOKEN: 1234
         run: |
-          echo "Sending payload"
+          # Extract and parse the payload
+          PAYLOAD=$(echo '${{ toJson(github.event.inputs.payload) }}' | jq -r '.')
+          
+          # Extract callback_url from the payload
+          CALLBACK_URL=$(echo $PAYLOAD | jq -r '.metadata.callback_url')
+          
+          if [ -z "$CALLBACK_URL" ] || [ "$CALLBACK_URL" = "null" ]; then
+            echo "Error: callback_url not found in the payload"
+            exit 1
+          fi
+          
+          echo "Using callback URL: $CALLBACK_URL"
+          
+          # Send the progress update
           curl -X PATCH \
             -H "X-Token: $TOKEN" \
             -H "Content-Type: application/json" \
@@ -31,7 +43,7 @@ jobs:
               "message": "The workflow is now in progress",
               "external_run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }' \
-            $WEBHOOK_URL
+            $CALLBACK_URL
 
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
