@@ -31,7 +31,8 @@ jobs:
           PAYLOAD=$(echo '${{ toJson(github.event.inputs.payload) }}' | jq -r '.')
           
           # Extract callback_url from the payload
-          CALLBACK_URL=$(echo $PAYLOAD | jq -r '.metadata.callback_url')
+          # CALLBACK_URL=$(echo $PAYLOAD | jq -r '.metadata.callback_url')
+          CALLBACK_URL='https://e238-2a00-6480-8748-1080-5d09-f6cd-1c64-cdfb.ngrok-free.app/api/collections/workflow_runs/records/wed8789q1vi4k63'
           
           if [ -z "$CALLBACK_URL" ] || [ "$CALLBACK_URL" = "null" ]; then
             echo "Error: callback_url not found in the payload"
