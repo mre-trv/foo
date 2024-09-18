@@ -17,6 +17,12 @@ jobs:
   Create-Kafka-Topic:
     runs-on: ubuntu-latest
     steps:
+      - name: Print client payload
+        env:
+          EVENT: ${{ toJson(github.event) }}
+        run: |
+          echo "Received client payload:"
+          echo "$EVENT" 
       - name: Parse payload and send progress
         env:
           TOKEN: 1234
@@ -36,7 +42,6 @@ jobs:
           
           # Send the progress update
           curl -X PATCH \
-            -H "X-Token: $TOKEN" \
             -H "Content-Type: application/json" \
             -d '{
               "status": "IN_PROGRESS",
@@ -59,9 +64,4 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - run: echo "This job is doing no more than this! :) ... for now at least"
 
-      - name: Print client payload
-        env:
-          EVENT: ${{ toJson(github.event) }}
-        run: |
-          echo "Received client payload:"
-          echo "$EVENT"
+
